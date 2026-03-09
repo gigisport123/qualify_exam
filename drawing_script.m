@@ -2,13 +2,13 @@
 % Date: March 8, 2026
 N = 7;
 frames = 200;   % total frames
-fps = 5;       % frames per second
+fps = 8;       % frames per second
 
 % define intial state of the ring
 state = [0 1 0 1 0 1 0];
 
-r_node = 1.3;  % nodes
-r_inv  = 1.0;  % inverter center
+r_node = 0.9;  % nodes
+r_inv  = 0.72;  % ring center
 theta_nodes = linspace(0,2*pi,N+1); theta_nodes(end) = [];
 theta_inv   = theta_nodes + pi/N;
 
@@ -16,15 +16,15 @@ theta_inv   = theta_nodes + pi/N;
 % write into video to have better control
 
 % initialize figure
-scale_factor = 4;
+scale_factor = 2;
 fig_width = 1080 / scale_factor;   
 fig_height = 1080 / scale_factor;
 
 % need to create an invisiable figure to decouple from Mac display
 % there will be no display during video, but the figure will be generated
 % with set dimension
-fig = figure('Color','w','Visible','off');   % invisible figure
-ax = axes('Position',[0 0 1 1]); % fills figure completely
+fig = figure('Color','w', 'unit', 'inch','Position', [0.1, 0.1, 4, 4]');   % display with correct sizing
+ax = axes('Position',[0 0 1 1], 'Color','w'); % fills figure completely
 axis tight
 axis off
 
@@ -36,13 +36,14 @@ prev_sector = -1;
 
 % parameters for inverter drawing
 L_line = 0.2;    % line length
-s_tri  = 0.2;    % triangle size
+s_tri  = 0.15;    % triangle size
 r_dot  = 0.05;   % bubble radius
 
 for k = 1:frames
-    cla(ax); hold(ax, 'on');
-    hold on; axis equal; axis off;
-    xlim([-1.6 1.6]); ylim([-1.6 1.6]);
+    cla(ax); 
+    % hold(ax, 'on');
+    hold on; axis equal; % axis off;
+    xlim([-1 1]); ylim([-1 1]);
 
     % draw ring
     t = linspace(0,2*pi,300);
@@ -93,18 +94,9 @@ for k = 1:frames
 
     % save to video
     frame = getframe(ax);
-    img = imresize(frame.cdata, [fig_height fig_width]); % explicitly set size
-    writeVideo(v,img);
-
-    % --- robust capture using exportgraphics ---
-    % tmpfile = [tempname,'.png'];                % temporary file
-    % exportgraphics(ax,tmpfile,'BackgroundColor','white','ContentType','image','Resolution',300);
-    % img = imread(tmpfile);
-    % delete(tmpfile);
+    % img = imresize(frame.cdata, [fig_height fig_width]); % explicitly set size
     % writeVideo(v,img);
-    % img = exportgraphics(ax,'temp.png','BackgroundColor','none','ContentType','image');
-    % img = imresize(imread('temp.png'), [vid_height vid_width]); 
-    % writeVideo(v,fig);
+    writeVideo(v,frame);
 end
 
 close(v);
