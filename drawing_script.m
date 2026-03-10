@@ -12,6 +12,13 @@ r_inv  = 0.72;  % ring center
 theta_nodes = linspace(0,2*pi,N+1); theta_nodes(end) = [];
 theta_inv   = theta_nodes + pi/N;
 
+% adding offset to any initial state
+% find the location where two bits are the same
+same_idx = find(state == circshift(state,-1),1);
+
+% edge propagates through the inverter after that node
+theta_offset = theta_inv(same_idx);
+
 % filename = 'ring_oscillator.gif';
 % write into video to have better control
 
@@ -32,7 +39,8 @@ v = VideoWriter('ring_oscillator.mp4','MPEG-4');
 v.FrameRate = fps;
 v.Quality = 100;   % max quality
 open(v);
-prev_sector = -1;
+% prev_sector = -1;
+prev_sector = floor(N*mod(theta_offset,2*pi)/(2*pi));
 
 % parameters for inverter drawing
 L_line = 0.2;    % line length
@@ -67,13 +75,14 @@ for k = 1:frames
     end
 
     % moving dot
-    theta_dot = 4*pi*(k/frames); % two revolutions
+    theta_dot = 4*pi*(k/frames) + theta_offset; % two revolutions
     xd = r_inv*cos(theta_dot);
     yd = r_inv*sin(theta_dot);
     scatter(xd, yd, 200, 'k','filled')
 
     % detect node crossing
-    sector = floor(N*mod(theta_dot,2*pi)/(2*pi));
+    theta_rel = mod(theta_dot,2*pi);
+    sector = floor(N*theta_rel/(2*pi));
     if sector ~= prev_sector
         node = mod(sector,N)+1;
         state(node) = ~state(node);
