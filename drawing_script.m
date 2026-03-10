@@ -411,6 +411,48 @@ for k = 1:frames
     % writeVideo(v,frame);
 
 end
+%% square wave for illustration
+% Date: march 10, 2026
+% Parameters
+% PARAMETERS
+cycles = 2;
+points_per_cycle = 300;
+
+phi1 = 0;                 % phase of first square wave
+dphi = pi/2;              % phase difference (INPUT VARIABLE)
+phi2 = phi1 + dphi;
+
+% Time axis
+t = linspace(0, cycles*2*pi, cycles*points_per_cycle);
+
+% Square waves
+sq1 = sign(sin(t + phi1));
+sq2 = sign(sin(t + phi2));
+
+% Convert to logic 0/1
+sq1_logic = (sq1+1)/2;
+sq2_logic = (sq2+1)/2;
+
+% PWM via XOR
+pwm = xor(sq1_logic, sq2_logic);
+
+% Plot
+figure('Color','w');
+axis off
+
+subplot(3,1,1)
+plot(t/(2*pi),sq1_logic,'LineWidth',1,'Color','k');
+ylim([-0.2 1.2])
+
+subplot(3,1,2)
+plot(t/(2*pi),sq2_logic,'LineWidth',1,'Color','k');
+ylim([-0.2 1.2])
+
+subplot(3,1,3)
+plot(t/(2*pi),pwm,'LineWidth',1,'Color','k');
+ylim([-0.2 1.2])
+
+
 
 %%
 function draw_inverter_ring(xc, yc, theta, L_line, s_tri, r_dot, idx, color)
